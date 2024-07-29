@@ -127,6 +127,8 @@ def create_dockerfile(project_type):
             dockerfile_content += f"RUN {run_commands}\n\n"
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
+        if 'gradio' in third_party_imports:
+            dockerfile_content += 'EXPOSE 7860\n\n'
         if 'streamlit' in third_party_imports:
             dockerfile_content += 'EXPOSE 8501\n\n'
             dockerfile_content += 'CMD ["streamlit", "run", "app.py"]'
