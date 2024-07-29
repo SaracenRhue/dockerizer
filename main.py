@@ -137,6 +137,7 @@ def create_dockerfile(project_type):
             dockerfile_content += 'CMD ["python", "app.py"]'
     elif project_type == 'node':
         dockerfile_content += "RUN npm install\n\n"
+        dockerfile_content += 'EXPOSE 3000\n\n'
         dockerfile_content += 'CMD ["node", "app.js"]'
     elif project_type == 'java':
         dockerfile_content += "RUN javac *.java\n\n"
