@@ -127,7 +127,14 @@ def create_dockerfile(project_type):
             dockerfile_content += f"RUN {run_commands}\n\n"
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
-        dockerfile_content += 'CMD ["python", "app.py"]'
+        if 'streamlit' in third_party_imports:
+            dockerfile_content += 'EXPOSE 8501\n\n'
+            dockerfile_content += 'CMD ["streamlit", "run", "app.py"]'
+        if 'flask' in third_party_imports:
+            dockerfile_content += 'EXPOSE 8080\n\n'
+            dockerfile_content += 'CMD ["flask", "--app", "main", "run", "--host=0.0.0.0", "--port=8080"]'
+        else:
+            dockerfile_content += 'CMD ["python", "app.py"]'
     elif project_type == 'node':
         dockerfile_content += "RUN npm install\n\n"
         dockerfile_content += 'CMD ["node", "app.js"]'
