@@ -2,9 +2,15 @@ import os
 import re
 from collections import Counter
 
+
 CONFIGS = {
     'python': {
         'base_image': 'python:3.11-alpine',
+        'ignore': ['__pycache__', '.venv']
+    },
+    'python-cuda': {
+        'base_image': 'nvidia/cuda:12.5.1-cudnn-runtime-ubuntu20.04',
+        'run': ['apt-get update', 'apt-get install -y python3.11 python-is-python3 pip', 'rm -rf /var/lib/apt/lists/*'],
         'ignore': ['__pycache__', '.venv']
     },
     'node': {
@@ -110,14 +116,17 @@ def create_dockerfile(project_type):
 
     if project_type == 'python':
         third_party_imports = check_python_imports()
-        if third_party_imports:
+        if third_party_imports and not os.path.exists('requirements.txt'):
             with open('requirements.txt', 'w') as f:
                 for module in third_party_imports:
                     f.write(f"{module}\n")
             print("requirements.txt created.")
+        if 'torch' in third_party_imports or 'tensorflow' in third_party_imports:
+            dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS['python-cuda']['base_image'])
+            run_commands = ' && \\\n    '.join(CONFIGS['python-cuda']['run'])
+            dockerfile_content += f"RUN {run_commands}\n\n"
+        if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
-        else:
-            print("No third-party imports found. requirements.txt not created.")
         dockerfile_content += 'CMD ["python", "app.py"]'
     elif project_type == 'node':
         dockerfile_content += "RUN npm install\n\n"
