@@ -118,16 +118,16 @@ def create_dockerfile(project_type):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
         else:
             print("No third-party imports found. requirements.txt not created.")
-        dockerfile_content += 'CMD ["python", "app.py"]\n'
+        dockerfile_content += 'CMD ["python", "app.py"]'
     elif project_type == 'node':
-        dockerfile_content += "RUN npm install\n"
-        dockerfile_content += 'CMD ["node", "app.js"]\n'
+        dockerfile_content += "RUN npm install\n\n"
+        dockerfile_content += 'CMD ["node", "app.js"]'
     elif project_type == 'java':
-        dockerfile_content += "RUN javac *.java\n"
-        dockerfile_content += 'CMD ["java", "Main"]\n'
+        dockerfile_content += "RUN javac *.java\n\n"
+        dockerfile_content += 'CMD ["java", "Main"]'
     elif project_type == 'cpp':
-        dockerfile_content += "RUN g++ -o myapp *.cpp\n"
-        dockerfile_content += 'CMD ["./myapp"]\n'
+        dockerfile_content += "RUN g++ -o myapp *.cpp\n\n"
+        dockerfile_content += 'CMD ["./myapp"]'
     elif project_type == 'bash':
         dockerfile_content += 'CMD ["bash", "script.sh"]'
 
