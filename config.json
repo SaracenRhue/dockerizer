@@ -51,5 +51,5 @@
         "run": ["g++ -o myapp *.cpp"],
         "cmd": ["./myapp"]
     },
-    "ignore": [".DS Store", ".git", ".gitignore", ".vscode", "LICENSE", "README.md", "Dockerfile", ".dockerinore", "data", "test*" "tests*", "venv", "env", ".env", ".github", ".gitea", ".gitlab"]
+    "ignore": [".DS_Store", ".git", ".gitignore", ".vscode", "LICENSE", "README.md", "Dockerfile", ".dockerinore", "data", "test*", "tests*", "venv", "env", ".env", ".github", ".gitea", ".gitlab"]
 }
