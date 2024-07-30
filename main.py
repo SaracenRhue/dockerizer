@@ -1,33 +1,60 @@
 import os
 import re
 from collections import Counter
-
+import flask
 
 CONFIGS = {
     'python': {
         'base_image': 'python:3.11-alpine',
-        'ignore': ['__pycache__', '.venv']
+        'ignore': ['__pycache__', '.venv'],
+        'cmd': ["python", "app.py"]
     },
     'python-cuda': {
         'base_image': 'nvidia/cuda:12.5.1-cudnn-runtime-ubuntu20.04',
-        'run': ['apt-get update', 'apt-get install -y python3.11 python-is-python3 pip', 'rm -rf /var/lib/apt/lists/*'],
-        'ignore': ['__pycache__', '.venv']
+        'ignore': ['__pycache__', '.venv'],
+        'run': ['apt-get update', 'apt-get install -y python3.11 python-is-python3 pip', 'rm -rf /var/lib/apt/lists/*']
+    },
+    'python-flask': {
+        'base_image': 'python:3.11-alpine',
+        'ignore': ['__pycache__', '.venv'],
+        'port': '8080',
+        'cmd': ["flask", "--app", "main", "run", "--host=0.0.0.0", "--port=8080"]
+    },
+    'python-streamlit': {
+        'base_image': 'python:3.11-alpine',
+        'ignore': ['__pycache__', '.venv'],
+        'port': '8501',
+        'cmd': ["streamlit", "run", "app.py"]
+    },
+    'python-gradio': {
+        'base_image': 'python:3.11-alpine',
+        'ignore': ['__pycache__', '.venv'],
+        'port': '7860',
+        'cmd': ["python", "app.py"]
     },
     'node': {
         'base_image': 'node:16-alpine',
-        'ignore': ['node_modules']
+        'ignore': ['node_modules'],
+        'run': ['npm install'],
+        'port': '3000',
+        'cmd': ["node", "app.js"]
     },
     'bash': {
         'base_image': 'bash:5.1-alpine',
-        'ignore': []
+        'ignore': [],
+        'cmd': ["bash", "script.sh"]
     },
     'java': {
         'base_image': 'openjdk:17-alpine',
-        'ignore': ['*.class', '*.jar', 'bin']
+        'ignore': ['*.class', '*.jar', 'bin'],
+        'run': ['javac *.java'],
+        'cmd': ["java", "Main"]
     },
     'cpp': {
         'base_image': 'gcc:latest',
-        'ignore': ['*.exe', '*.dll', '*.o', '*.out', '*.a', '*.so', 'build']
+        'ignore': ['*.exe', '*.dll', '*.o', '*.out', '*.a', '*.so', 'build'],
+        'run': ['g++ -o myapp *.cpp'],
+        'cmd': ["./myapp"]
     },
     'ignore': ['.DS Store', '.git', '.gitignore', '.vscode', 'LICENSE', 'README.md', 'Dockerfile', '.dockerinore', 'data', 'test*' 'tests*', 'venv', 'env', '.env', '.github', '.gitea', '.gitlab']
 }
@@ -120,8 +147,7 @@ def create_dockerfile(project_type):
     dockerfile_content = f"FROM {config['base_image']}\n\n"
     dockerfile_content += "WORKDIR /app\n\n"
     dockerfile_content += "COPY . .\n\n"
-    if volumes:
-        dockerfile_content += "RUN mkdir -p "+' '.join(volumes)+"\n\n"
+    if volumes: dockerfile_content += "RUN mkdir -p "+' '.join(volumes)+"\n\n"
 
     if project_type == 'python':
         third_party_imports = check_python_imports()
@@ -131,41 +157,37 @@ def create_dockerfile(project_type):
                     f.write(f"{module}\n")
             print("requirements.txt created.")
         if 'torch' in third_party_imports or 'tensorflow' in third_party_imports:
-            dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS['python-cuda']['base_image'])
-            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-            run_commands = ' && '.join(CONFIGS['python-cuda']['run'])
+            project_type == 'python-cuda'
+        elif 'flask' in third_party_imports:
+            project_type = 'python-flask'
+        elif 'streamlit' in third_party_imports:
+            project_type = 'python-streamlit'
+        elif 'gradio' in third_party_imports:
+            project_type = 'python-gradio'
+
+        dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS[project_type]['base_image'])
+        if 'run' in CONFIGS[project_type]:
+            run_commands = ' && '.join(CONFIGS[project_type]['run'])
             dockerfile_content += f"RUN {run_commands}\n\n"
+
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
-        if 'gradio' in third_party_imports:
-            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-            dockerfile_content += 'EXPOSE 7860\n\n'
-        if 'streamlit' in third_party_imports:
-            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-            dockerfile_content += 'EXPOSE 8501\n\n'
-            dockerfile_content += 'CMD ["streamlit", "run", "app.py"]'
-        if 'flask' in third_party_imports:
-            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-            dockerfile_content += 'EXPOSE 8080\n\n'
-            dockerfile_content += 'CMD ["flask", "--app", "main", "run", "--host=0.0.0.0", "--port=8080"]'
-        else:
-            dockerfile_content += 'CMD ["python", "app.py"]'
-    elif project_type == 'node':
-        dockerfile_content += "RUN npm install\n\n"
-        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-        dockerfile_content += 'EXPOSE 3000\n\n'
-        dockerfile_content += 'CMD ["node", "app.js"]'
-    elif project_type == 'java':
-        dockerfile_content += "RUN javac *.java\n\n"
-        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-        dockerfile_content += 'CMD ["java", "Main"]'
-    elif project_type == 'cpp':
-        dockerfile_content += "RUN g++ -o myapp *.cpp\n\n"
-        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-        dockerfile_content += 'CMD ["./myapp"]'
-    elif project_type == 'bash':
-        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
-        dockerfile_content += 'CMD ["bash", "script.sh"]'
+        if volumes:
+            dockerfile_content += f"VOLUME {volumes}\n\n"
+        if 'port' in CONFIGS[project_type]:
+           dockerfile_content += f"EXPOSE {CONFIGS[project_type]['port']}\n\n" 
+        if 'cmd' in CONFIGS[project_type]:
+            dockerfile_content += f"CMD {CONFIGS[project_type]['cmd']}"
+        
+    if 'python' not in project_type:
+        if volumes:
+            dockerfile_content += f"VOLUME {volumes}\n\n"
+        if 'run' in CONFIGS[project_type]:
+            dockerfile_content += "RUN "+' && '.join(CONFIGS[project_type]['run'])+'\n\n'
+        if 'port' in CONFIGS[project_type]:
+           dockerfile_content += f"EXPOSE {CONFIGS[project_type]['port']}\n\n" 
+        if 'cmd' in CONFIGS[project_type]:
+            dockerfile_content += f"CMD {CONFIGS[project_type]['cmd']}"
 
     with open('Dockerfile', 'w') as f:
         f.write(dockerfile_content)
