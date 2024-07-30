@@ -1,5 +1,5 @@
 # Dockerizer
 
 ```bash
-curl -s https://git.saracen-raid.ch/SaracenRhue/dockerizer/raw/branch/main/main.py | python3.11
+curl -s https://raw.githubusercontent.com/SaracenRhue/dockerizer/main/main.py | python3.11
 ```
