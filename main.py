@@ -1,7 +1,6 @@
 import os
 import re
 from collections import Counter
-import flask
 
 CONFIGS = {
     'python': {

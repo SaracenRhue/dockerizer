@@ -1,0 +1,18 @@
+.DS Store
+.git
+.gitignore
+.vscode
+LICENSE
+README.md
+Dockerfile
+.dockerinore
+data
+test*tests*
+venv
+env
+.env
+.github
+.gitea
+.gitlab
+__pycache__
+.venv

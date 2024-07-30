@@ -1,6 +1,3 @@
-requirements.txt
-Dockerfile
-.dockerignore
 # ---> Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
