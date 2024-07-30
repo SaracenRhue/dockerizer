@@ -27,7 +27,6 @@ docker run --rm -v "$CURRENT_DIR":/app saracenrhue/dockerizer:latest
 # Check if the docker command was successful
 if [ $? -eq 0 ]; then
     echo "Dockerfile generation completed successfully."
-    echo "Please check your current directory for the generated Dockerfile and .dockerignore files."
 else
     error "An error occurred while generating the Dockerfile."
 fi
