@@ -122,11 +122,6 @@ def create_dockerfile(project_type):
     dockerfile_content += "COPY . .\n\n"
     if volumes:
         dockerfile_content += "RUN mkdir -p "+' '.join(volumes)+"\n\n"
-    # env_file = ''
-    # if os.path.exists('.env'):
-    #     env_file = '.env'
-    # if os.path.exists('env'):
-    #     env_file = 'env'
 
     if project_type == 'python':
         third_party_imports = check_python_imports()
@@ -137,6 +132,7 @@ def create_dockerfile(project_type):
             print("requirements.txt created.")
         if 'torch' in third_party_imports or 'tensorflow' in third_party_imports:
             dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS['python-cuda']['base_image'])
+            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
             run_commands = ' && '.join(CONFIGS['python-cuda']['run'])
             dockerfile_content += f"RUN {run_commands}\n\n"
         if os.path.exists('requirements.txt'):
