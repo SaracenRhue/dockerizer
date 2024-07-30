@@ -167,8 +167,7 @@ def create_dockerfile(project_type):
 
         dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS[project_type]['base_image'])
         if 'run' in CONFIGS[project_type]:
-            run_commands = ' && '.join(CONFIGS[project_type]['run'])
-            dockerfile_content += f"RUN {run_commands}\n\n"
+            "RUN "+' && '.join(CONFIGS[project_type]['run'])+'\n\n'
 
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
