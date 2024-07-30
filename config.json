@@ -1,0 +1,55 @@
+{
+    "python": {
+        "base_image": "python:3.11-alpine",
+        "ignore": ["__pycache__", ".venv"],
+        "cmd": ["python", "app.py"]
+    },
+    "python-cuda": {
+        "base_image": "nvidia/cuda:12.5.1-cudnn-runtime-ubuntu20.04",
+        "ignore": ["__pycache__", ".venv"],
+        "run": ["apt-get update", "apt-get install -y python3.11 python-is-python3 pip", "rm -rf /var/lib/apt/lists/*"]
+    },
+    "python-flask": {
+        "base_image": "python:3.11-alpine",
+        "ignore": ["__pycache__", ".venv"],
+        "port": "8080",
+        "cmd": ["flask", "--app", "main", "run", "--host=0.0.0.0", "--port=8080"]
+    },
+    "python-streamlit": {
+        "base_image": "python:3.11-alpine",
+        "ignore": ["__pycache__", ".venv"],
+        "port": "8501",
+        "cmd": ["streamlit", "run", "app.py"]
+    },
+    "python-gradio": {
+        "base_image": "python:3.11-alpine",
+        "ignore": ["__pycache__", ".venv"],
+        "port": "7860",
+        "cmd": ["python", "app.py"]
+    },
+    "node": {
+        "base_image": "node:16-alpine",
+        "ignore": ["node_modules"],
+        "run": ["npm install"],
+        "port": "3000",
+        "cmd": ["node", "app.js"]
+    },
+    "bash": {
+        "base_image": "bash:5.1-alpine",
+        "ignore": [],
+        "cmd": ["bash", "script.sh"]
+    },
+    "java": {
+        "base_image": "openjdk:17-alpine",
+        "ignore": ["*.class", "*.jar", "bin"],
+        "run": ["javac *.java"],
+        "cmd": ["java", "Main"]
+    },
+    "cpp": {
+        "base_image": "gcc:latest",
+        "ignore": ["*.exe", "*.dll", "*.o", "*.out", "*.a", "*.so", "build"],
+        "run": ["g++ -o myapp *.cpp"],
+        "cmd": ["./myapp"]
+    },
+    "ignore": [".DS Store", ".git", ".gitignore", ".vscode", "LICENSE", "README.md", "Dockerfile", ".dockerinore", "data", "test*" "tests*", "venv", "env", ".env", ".github", ".gitea", ".gitlab"]
+}
