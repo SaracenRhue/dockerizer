@@ -172,21 +172,21 @@ def create_dockerfile(project_type):
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
         if volumes:
-            dockerfile_content += f"VOLUME {volumes}\n\n"
+            dockerfile_content += "VOLUME "+str(volumes).replace("'", '"')+"\n\n"
         if 'port' in CONFIGS[project_type]:
            dockerfile_content += f"EXPOSE {CONFIGS[project_type]['port']}\n\n" 
         if 'cmd' in CONFIGS[project_type]:
-            dockerfile_content += f"CMD {CONFIGS[project_type]['cmd']}"
+            dockerfile_content += "CMD "+str(CONFIGS[project_type]['cmd']).replace("'", '"')
         
     if 'python' not in project_type:
         if volumes:
-            dockerfile_content += f"VOLUME {volumes}\n\n"
+            dockerfile_content += "VOLUME "+str(volumes).replace("'", '"')+"\n\n"
         if 'run' in CONFIGS[project_type]:
             dockerfile_content += "RUN "+' && '.join(CONFIGS[project_type]['run'])+'\n\n'
         if 'port' in CONFIGS[project_type]:
            dockerfile_content += f"EXPOSE {CONFIGS[project_type]['port']}\n\n" 
         if 'cmd' in CONFIGS[project_type]:
-            dockerfile_content += f"CMD {CONFIGS[project_type]['cmd']}"
+            dockerfile_content += "CMD "+str(CONFIGS[project_type]['cmd']).replace("'", '"')
 
     with open('Dockerfile', 'w') as f:
         f.write(dockerfile_content)
