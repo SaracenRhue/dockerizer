@@ -144,24 +144,30 @@ def create_dockerfile(project_type):
             if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
             dockerfile_content += 'EXPOSE 7860\n\n'
         if 'streamlit' in third_party_imports:
+            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
             dockerfile_content += 'EXPOSE 8501\n\n'
             dockerfile_content += 'CMD ["streamlit", "run", "app.py"]'
         if 'flask' in third_party_imports:
+            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
             dockerfile_content += 'EXPOSE 8080\n\n'
             dockerfile_content += 'CMD ["flask", "--app", "main", "run", "--host=0.0.0.0", "--port=8080"]'
         else:
             dockerfile_content += 'CMD ["python", "app.py"]'
     elif project_type == 'node':
         dockerfile_content += "RUN npm install\n\n"
+        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
         dockerfile_content += 'EXPOSE 3000\n\n'
         dockerfile_content += 'CMD ["node", "app.js"]'
     elif project_type == 'java':
         dockerfile_content += "RUN javac *.java\n\n"
+        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
         dockerfile_content += 'CMD ["java", "Main"]'
     elif project_type == 'cpp':
         dockerfile_content += "RUN g++ -o myapp *.cpp\n\n"
+        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
         dockerfile_content += 'CMD ["./myapp"]'
     elif project_type == 'bash':
+        if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
         dockerfile_content += 'CMD ["bash", "script.sh"]'
 
     with open('Dockerfile', 'w') as f:
