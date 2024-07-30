@@ -18,7 +18,8 @@ CONFIGS = {
         'ignore': ['node_modules']
     },
     'bash': {
-        'base_image': 'bash:5.1-alpine'
+        'base_image': 'bash:5.1-alpine',
+        'ignore': []
     },
     'java': {
         'base_image': 'openjdk:17-alpine',
