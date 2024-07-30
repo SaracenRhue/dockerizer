@@ -79,6 +79,12 @@ def determine_project_type():
         project_type = check_file_extensions()
     return project_type
 
+def detect_volumes():
+    common_volume_dirs = ['data', 'logs', 'config', 'uploads', 'media', 'static', 'db']
+    existing_volume_dirs = [f"/app/{dir}" for dir in common_volume_dirs if os.path.exists(dir)]
+    return existing_volume_dirs if len(existing_volume_dirs) > 0 else False
+            
+
 def check_python_imports():
     standard_libs = set([
         'abc', 'argparse', 'ast', 'asyncio', 'base64', 'collections', 'concurrent', 'contextlib',
@@ -108,11 +114,18 @@ def create_dockerfile(project_type):
     if project_type not in CONFIGS:
         print(f"Unsupported project type: {project_type}")
         return
-
+    volumes = detect_volumes()
     config = CONFIGS[project_type]
     dockerfile_content = f"FROM {config['base_image']}\n\n"
     dockerfile_content += "WORKDIR /app\n\n"
     dockerfile_content += "COPY . .\n\n"
+    if volumes:
+        dockerfile_content += "RUN mkdir -p "+' '.join(volumes)+"\n\n"
+    # env_file = ''
+    # if os.path.exists('.env'):
+    #     env_file = '.env'
+    # if os.path.exists('env'):
+    #     env_file = 'env'
 
     if project_type == 'python':
         third_party_imports = check_python_imports()
@@ -123,11 +136,12 @@ def create_dockerfile(project_type):
             print("requirements.txt created.")
         if 'torch' in third_party_imports or 'tensorflow' in third_party_imports:
             dockerfile_content = dockerfile_content.replace(CONFIGS['python']['base_image'], CONFIGS['python-cuda']['base_image'])
-            run_commands = ' && \\\n    '.join(CONFIGS['python-cuda']['run'])
+            run_commands = ' && '.join(CONFIGS['python-cuda']['run'])
             dockerfile_content += f"RUN {run_commands}\n\n"
         if os.path.exists('requirements.txt'):
             dockerfile_content += "RUN pip install --no-cache-dir -r requirements.txt\n\n"
         if 'gradio' in third_party_imports:
+            if volumes: dockerfile_content += f"VOLUME {volumes}\n\n"
             dockerfile_content += 'EXPOSE 7860\n\n'
         if 'streamlit' in third_party_imports:
             dockerfile_content += 'EXPOSE 8501\n\n'
