@@ -1,7 +1,8 @@
 #!/bin/bash
 
+CURRENT_DIR=$(pwd)
 # Run the dockerized tool
-docker run --rm -v "$pwd":/app saracenrhue/dockerizer:latest
+docker run --rm -v "$CURRENT_DIR":/app saracenrhue/dockerizer:latest
 
 # Check if the docker command was successful
 if [ $? -eq 0 ]; then
