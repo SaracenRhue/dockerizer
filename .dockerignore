@@ -16,3 +16,4 @@ env
 .gitlab
 __pycache__
 .venv
+run.sh
