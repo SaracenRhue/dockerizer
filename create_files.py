@@ -8,7 +8,7 @@ with open('config.json', 'r') as f:
 
 def detect_volumes():
     common_volume_dirs = ['data', 'logs', 'config', 'uploads', 'media', 'static', 'db']
-    existing_volume_dirs = [f"/app/{dir}" for dir in common_volume_dirs if os.path.exists(dir)]
+    existing_volume_dirs = [f"/project/{dir}" for dir in common_volume_dirs if os.path.exists(dir)]
     return existing_volume_dirs if len(existing_volume_dirs) > 0 else False
             
 
@@ -25,7 +25,7 @@ def check_python_imports():
     imports = set()
     import_pattern = re.compile(r'^(?:from|import)\s+(\w+)')
 
-    for root, _, files in os.walk('.'):
+    for root, _, files in os.walk('/project/'):
         for file in files:
             if file.endswith('.py'):
                 with open(os.path.join(root, file), 'r') as f:
@@ -51,8 +51,8 @@ def create_dockerfile(project_type):
 
     if project_type == 'python':
         third_party_imports = check_python_imports()
-        if third_party_imports and not os.path.exists('requirements.txt'):
-            with open('requirements.txt', 'w') as f:
+        if third_party_imports and not os.path.exists('/project/requirements.txt'):
+            with open('/project/requirements.txt', 'w') as f:
                 for module in third_party_imports:
                     f.write(f"{module}\n")
             print("requirements.txt created.")
@@ -88,7 +88,7 @@ def create_dockerfile(project_type):
         if 'cmd' in CONFIGS[project_type]:
             dockerfile_content += "CMD "+str(CONFIGS[project_type]['cmd']).replace("'", '"')
 
-    with open('Dockerfile', 'w') as f:
+    with open('/project/Dockerfile', 'w') as f:
         f.write(dockerfile_content)
 
 
@@ -97,5 +97,5 @@ def create_dockerignore(project_type):
     if project_type in CONFIGS and 'ignore' in CONFIGS[project_type]:
         ignore_list.extend(CONFIGS[project_type]['ignore'])
 
-    with open('.dockerignore', 'w') as f:
+    with open('/project/.dockerignore', 'w') as f:
         f.write('\n'.join(ignore_list))

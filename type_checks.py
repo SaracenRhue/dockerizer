@@ -3,8 +3,8 @@ from collections import Counter
 
 def check_gitignore():
     project_type = False
-    if os.path.isfile(".gitignore"):
-        with open(".gitignore", "r") as f:
+    if os.path.isfile("/project/.gitignore"):
+        with open("/project/.gitignore", "r") as f:
             file = f.read()
         if '__pycache__' in file:
             project_type = 'python'
@@ -32,7 +32,7 @@ def check_file_extensions():
     
     file_extensions = Counter()
     
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk('/project/'):
         for file in files:
             _, ext = os.path.splitext(file)
             if ext in extension_map:

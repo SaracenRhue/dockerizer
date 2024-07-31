@@ -22,7 +22,7 @@ docker pull saracenrhue/dockerizer:latest 2>&1 | grep -v -e "What's Next?" -e "V
 
 # Run the dockerized tool
 echo "Analyzing project in $CURRENT_DIR..."
-docker run --rm -v "$CURRENT_DIR":/app saracenrhue/dockerizer:latest
+docker run --rm -v "$CURRENT_DIR":/project saracenrhue/dockerizer:latest
 
 # Check if the docker command was successful
 if [ $? -eq 0 ]; then
