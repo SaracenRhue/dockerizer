@@ -28,7 +28,7 @@
         "cmd": ["python", "app.py"]
     },
     "node": {
-        "base_image": "node:16-alpine",
+        "base_image": "node:alpine",
         "ignore": ["node_modules"],
         "run": ["npm install"],
         "port": "3000",
